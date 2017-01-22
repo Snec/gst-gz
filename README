@@ -51,7 +51,42 @@ GST_PLUGIN_PATH=/usr/local/lib/gstreamer-1.0 gst-launch-1.0 -v filesrc location=
 if cmp -s "file.txt" "file_dec.txt"; then echo "Test failed"; else echo "Test succed"; fi
 ```
 
-### Todo
+## Plugins details
+### gzenc
+#### Pad Templates:
+  SRC template: 'src'
+    Availability: Always
+    Capabilities:
+      application/x-gzip
+
+  SINK template: 'sink'
+    Availability: Always
+    Capabilities:
+      ANY
+
+#### Element Properties:
+* compression-level   : The compression level must be -1, or between 0 and 9: 1 gives best speed, 9 gives best compression, 0 gives no compression at all (the input data is simply copied a block at a time). -1 requests a default compromise between speed and compression (currently equivalent to level 6).
+* memory-level        : The memory-level parameter specifies how much memory should be allocated for the internal compression state. memory-level=1 uses minimum memory but is slow and reduces compression ratio; memory-level=9 uses maximum memory for optimal speed. The default value is 8.
+* strategy            : The strategy parameter is used to tune the compression algorithm. (default/filtered/huffman/rle/fixed)
+* format              : Type of format generated. (gip/zlib)
+
+### gzdec
+#### Pad Templates:
+  SINK template: 'sink'
+    Availability: Always
+    Capabilities:
+      application/x-gzip
+
+  SRC template: 'src'
+    Availability: Always
+    Capabilities:
+      ANY
+
+#### Element Properties:
+* first-buffer-size   : Size of first buffer (used to determine the mime type of the uncompressed data).
+* buffer-size         : Buffer size.
+
+## Todo
 Add support for deflate compressed format (RFC 1951)
 
 ## Author
