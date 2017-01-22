@@ -4,6 +4,7 @@ This project provides GStreamer plugins in order to compress and decompress data
 Two plugins are provided:
 * gzenc: plugin for compressing data.
 * gzdec: plugin for decompressing data.
+
 Two formats are supported for now:
 * zlib compressed format (RFC 1950).
 * gzip compressed format (RFC 1952).
