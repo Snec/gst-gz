@@ -1,0 +1,63 @@
+# zlib based GStreamer plugins
+
+This project provides GStreamer plugins in order to compress and decompress data with zlib.
+Two plugins are provided:
+	* gzenc: plugin for compressing data.
+	* gzdec: plugin for decompressing data.
+Two formats are supported for now:
+	* zlib compressed format (RFC 1950).
+	* gzip compressed format (RFC 1952).
+
+GStreamer 1.0 and 0.10 are both supported. 
+
+## Getting Started
+
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+
+### Prerequisites
+
+These plugins have been tested on Ubuntu 16.04
+
+You should install those dependencies:
+```
+sudo apt install gstreamer0.10-plugins-base gstreamer1.0-plugins-base zlib1g-dev
+```
+
+### Installing
+
+Clone the git repository:
+```
+git clone https://github.com/Snec/gst-gz.git
+```
+
+Build and install the plugins:
+```
+cd gz
+./autogen.sh
+./configure --with-gstreamer-api=1.0
+make
+sudo make install
+```
+
+You can choose which GStreamer version to use with the `--with-gstreamer-api` option. (--with-gstreamer-api=0.10 to use GStreamer 0.10)
+
+## Running tests on plugins
+
+```
+echo "This is a test ..." > file.txt 
+GST_PLUGIN_PATH=/usr/local/lib/gstreamer-1.0 gst-launch-1.0 -v filesrc location=file.txt ! gzenc ! filesink location=file.txt.gz
+GST_PLUGIN_PATH=/usr/local/lib/gstreamer-1.0 gst-launch-1.0 -v filesrc location=file.txt.gz ! gzdec ! filesink location=file_dec.txt
+if cmp -s "file.txt" "file_dec.txt"; then echo "Test failed"; else echo "Test succed"; fi
+```
+
+### Todo
+Add support for deflate compressed format (RFC 1951)
+
+## Author
+
+* **Alexandre Esse** - *Initial work* - [Snec](https://github.com/Snec)
+
+## License
+
+This project is licensed under the LGPL License - see the [LICENSE](LICENSE) file for details.
+
