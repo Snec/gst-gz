@@ -2,17 +2,17 @@
 
 This project provides GStreamer plugins in order to compress and decompress data with zlib.
 Two plugins are provided:
-	* gzenc: plugin for compressing data.
-	* gzdec: plugin for decompressing data.
+* gzenc: plugin for compressing data.
+* gzdec: plugin for decompressing data.
 Two formats are supported for now:
-	* zlib compressed format (RFC 1950).
-	* gzip compressed format (RFC 1952).
+* zlib compressed format (RFC 1950).
+* gzip compressed format (RFC 1952).
 
 GStreamer 1.0 and 0.10 are both supported. 
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
 ### Prerequisites
 
@@ -32,7 +32,7 @@ git clone https://github.com/Snec/gst-gz.git
 
 Build and install the plugins:
 ```
-cd gz
+cd gst-gz
 ./autogen.sh
 ./configure --with-gstreamer-api=1.0
 make
