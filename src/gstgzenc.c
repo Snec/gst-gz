@@ -612,7 +612,7 @@ gst_gzenc_class_init (GstGzencClass * klass)
       gst_static_pad_template_get (&src_template));
   gst_element_class_set_static_metadata (gstelement_class, "GZ encoder",
       "Codec/Encoder", "Compresses streams",
-      "Alexandre Esse <alexandre.esse@gmail.com>");
+      "Alexandre Esse <alexandre.esse.dev@gmail.com>");
 #endif
   GST_DEBUG_CATEGORY_INIT (gzenc_debug, "gzenc", 0, "GZ compressor");
 }
@@ -627,6 +627,6 @@ gst_gzenc_base_init (gpointer g_class)
   gst_element_class_add_static_pad_template (ec, &src_template);
   gst_element_class_set_details_simple (ec, "GZ encoder",
       "Codec/Encoder", "Compresses streams",
-      "Alexandre Esse <alexandre.esse@gmail.com>");
+      "Alexandre Esse <alexandre.esse.dev@gmail.com>");
 }
 #endif
