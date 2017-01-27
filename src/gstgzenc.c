@@ -158,7 +158,7 @@ gst_gzenc_strategy_get_type (void)
 	return gzenc_strategy;
 }
 
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
 #define gst_gzenc_parent_class parent_class
 G_DEFINE_TYPE (GstGzenc, gst_gzenc, GST_TYPE_ELEMENT);
 #else
@@ -265,7 +265,7 @@ gst_gzenc_compress_init (GstGzenc * enc)
 }
 
 static gboolean
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
 gst_gzenc_event (GstPad * pad, GstObject * parent, GstEvent * e)
 #else
 gst_gzenc_event (GstPad * pad, GstEvent * e)
@@ -274,7 +274,7 @@ gst_gzenc_event (GstPad * pad, GstEvent * e)
 	GstGzenc *enc;
 	gboolean ret;
 
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
 	enc = GST_GZENC (parent);
 #else
 	enc = GST_GZENC (gst_pad_get_parent (pad));
@@ -289,7 +289,7 @@ gst_gzenc_event (GstPad * pad, GstEvent * e)
 			do
 			{
 				GstBuffer *out;
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
 				GstMapInfo outmap;
 				guint n;
 
@@ -311,7 +311,7 @@ gst_gzenc_event (GstPad * pad, GstEvent * e)
 				enc->stream.avail_out = GST_BUFFER_SIZE (out);
 #endif
         		r = deflate (&enc->stream, Z_FINISH);
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
         		gst_buffer_unmap (out, &outmap);
 #endif
 				if ((r != Z_OK) && (r != Z_STREAM_END))
@@ -321,7 +321,7 @@ gst_gzenc_event (GstPad * pad, GstEvent * e)
 				  gst_buffer_unref (out);
 				  break;
 				}
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
 				n = gst_buffer_get_size (out);
 				if (enc->stream.avail_out >= n)
 #else
@@ -331,7 +331,7 @@ gst_gzenc_event (GstPad * pad, GstEvent * e)
 					gst_buffer_unref (out);
 					break;
 				}
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
 				gst_buffer_resize (out, 0, n - enc->stream.avail_out);
 				n = gst_buffer_get_size (out);
 				GST_BUFFER_OFFSET (out) = enc->stream.total_out - n;
@@ -349,7 +349,7 @@ gst_gzenc_event (GstPad * pad, GstEvent * e)
 					break;
 				}
 			} while (r != Z_STREAM_END);
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
 			ret = gst_pad_event_default (pad, parent, e);
 #else
 			ret = gst_pad_event_default (pad, e);
@@ -363,21 +363,21 @@ gst_gzenc_event (GstPad * pad, GstEvent * e)
 			break;
 		}
 		default:
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
 			ret = gst_pad_event_default (pad, parent, e);
 #else
 			ret = gst_pad_event_default (pad, e);
 #endif
 		break;
 	}
-#if !GST_VERSION_MAJOR
+#if !GST_CHECK_VERSION(1,0,0)
 	gst_object_unref (enc);
 #endif
 	return ret;
 }
 
 static GstFlowReturn
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
 gst_gzenc_chain (GstPad * pad, GstObject * parent, GstBuffer * in)
 #else
 gst_gzenc_chain (GstPad * pad, GstBuffer * in)
@@ -388,7 +388,7 @@ gst_gzenc_chain (GstPad * pad, GstBuffer * in)
 	GstGzenc *enc;
 	guint n;
 	int ret;
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
 	GstMapInfo map = GST_MAP_INFO_INIT, outmap;
 
 	enc = GST_GZENC (parent);
@@ -400,7 +400,7 @@ gst_gzenc_chain (GstPad * pad, GstBuffer * in)
 	    GST_ELEMENT_ERROR (enc, LIBRARY, FAILED, (NULL), ("Compressor not ready."));
 		//gst_gzenc_compress_init (enc);
 		//gst_buffer_unref (out);
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
 		flow = GST_FLOW_FLUSHING;
 #else
 		flow = GST_FLOW_WRONG_STATE;
@@ -408,7 +408,7 @@ gst_gzenc_chain (GstPad * pad, GstBuffer * in)
 	    goto done;
 	}
 
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
 	gst_buffer_map (in, &map, GST_MAP_READ);
 	enc->stream.next_in = (void *) map.data;
 	enc->stream.avail_in = map.size;
@@ -418,7 +418,7 @@ gst_gzenc_chain (GstPad * pad, GstBuffer * in)
 #endif
 
   while (enc->stream.avail_in) {
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
     out = gst_buffer_new_and_alloc (enc->memory_level);
     gst_buffer_map (out, &outmap, GST_MAP_WRITE);
     enc->stream.next_out = (void *) outmap.data;
@@ -435,7 +435,7 @@ gst_gzenc_chain (GstPad * pad, GstBuffer * in)
     enc->stream.avail_out = GST_BUFFER_SIZE (out);
 #endif
     ret = deflate (&enc->stream, Z_NO_FLUSH);
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
     gst_buffer_unmap (out, &outmap);
 #endif
     if (ret == Z_STREAM_ERROR)
@@ -447,7 +447,7 @@ gst_gzenc_chain (GstPad * pad, GstBuffer * in)
 		flow = GST_FLOW_ERROR;
 		goto done;
 	}
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
     n = gst_buffer_get_size (out);
 #else
 	n = GST_BUFFER_SIZE (out);
@@ -456,7 +456,7 @@ gst_gzenc_chain (GstPad * pad, GstBuffer * in)
       gst_buffer_unref (out);
       break;
     }
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
     gst_buffer_resize (out, 0, n - enc->stream.avail_out);
     n = gst_buffer_get_size (out);
     GST_BUFFER_OFFSET (out) = enc->stream.total_out - n;
@@ -474,7 +474,7 @@ gst_gzenc_chain (GstPad * pad, GstBuffer * in)
   }
 
 done:
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
   gst_buffer_unmap (in, &map);
 #endif
   gst_buffer_unref (in);
@@ -483,7 +483,7 @@ done:
 }
 
 static void
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
 gst_gzenc_init (GstGzenc * enc)
 #else
 gst_gzenc_init (GstGzenc * enc, GstGzencClass * klass)
@@ -581,7 +581,7 @@ static void
 gst_gzenc_class_init (GstGzencClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
   GstElementClass *gstelement_class = GST_ELEMENT_CLASS (klass);
 #endif
   gobject_class->set_property = gst_gzenc_set_property;
@@ -605,7 +605,7 @@ gst_gzenc_class_init (GstGzencClass * klass)
     	g_param_spec_enum ("format", "Format", "Type of format generated",
                        GST_TYPE_GZENC_FORMAT, GST_GZENC_GZIP,
                        G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
   gst_element_class_add_pad_template (gstelement_class,
       gst_static_pad_template_get (&sink_template));
   gst_element_class_add_pad_template (gstelement_class,
@@ -617,7 +617,7 @@ gst_gzenc_class_init (GstGzencClass * klass)
   GST_DEBUG_CATEGORY_INIT (gzenc_debug, "gzenc", 0, "GZ compressor");
 }
 
-#if !GST_VERSION_MAJOR
+#if !GST_CHECK_VERSION(1,0,0)
 static void
 gst_gzenc_base_init (gpointer g_class)
 {

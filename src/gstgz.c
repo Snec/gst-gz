@@ -64,7 +64,7 @@ plugin_init (GstPlugin * p)
 
 
 GST_PLUGIN_DEFINE (GST_VERSION_MAJOR, GST_VERSION_MINOR, 
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
 	gz,
 #else
 	"gz",

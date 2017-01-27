@@ -91,7 +91,7 @@ struct _GstGzdecClass
     GstElementClass parent_class;
 };
 
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
 #define gst_gzdec_parent_class parent_class
 G_DEFINE_TYPE (GstGzdec, gst_gzdec, GST_TYPE_ELEMENT);
 #else
@@ -155,7 +155,7 @@ gst_gzdec_decompress_init (GstGzdec * dec)
 }
 
 static GstFlowReturn
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
 gst_gzdec_chain (GstPad * pad, GstObject * parent, GstBuffer * in)
 #else
 gst_gzdec_chain (GstPad * pad, GstBuffer * in)
@@ -165,7 +165,7 @@ gst_gzdec_chain (GstPad * pad, GstBuffer * in)
     GstBuffer *out;
     GstGzdec *dec;
     int ret = Z_OK;
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
     GstMapInfo inmap = GST_MAP_INFO_INIT, outmap;
 
     dec = GST_GZDEC (parent);
@@ -177,7 +177,7 @@ gst_gzdec_chain (GstPad * pad, GstBuffer * in)
 		/* Don't go further if not ready */
         GST_ELEMENT_ERROR (dec, LIBRARY, FAILED, (NULL), 
 			("Decompressor not ready."));
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
         flow = GST_FLOW_FLUSHING;
 #else
 		flow = GST_FLOW_WRONG_STATE;
@@ -185,7 +185,7 @@ gst_gzdec_chain (GstPad * pad, GstBuffer * in)
     }
 	else
 	{
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
 		/* Mapping the input buffer */
 		gst_buffer_map (in, &inmap, GST_MAP_READ);
     	dec->stream.next_in = (z_const Bytef *) inmap.data;
@@ -198,7 +198,7 @@ gst_gzdec_chain (GstPad * pad, GstBuffer * in)
     	do
 		{
         	guint have;
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
 		    /* Create and map the output buffer */
 		    out = gst_buffer_new_and_alloc (dec->offset ? dec->buffer_size : dec->first_buffer_size);
 			gst_buffer_map (out, &outmap, GST_MAP_WRITE);
@@ -267,7 +267,7 @@ gst_gzdec_chain (GstPad * pad, GstBuffer * in)
 				flow = GST_FLOW_ERROR;
 				break;
 		    }
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
 		    if (dec->stream.avail_out >= gst_buffer_get_size (out))
 #else
 			if (dec->stream.avail_out >= GST_BUFFER_SIZE (out))
@@ -276,7 +276,7 @@ gst_gzdec_chain (GstPad * pad, GstBuffer * in)
 		        gst_buffer_unref (out);
 		        break;
 		    }
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
 			/* Resize the output buffer */
 		    gst_buffer_resize (out, 0, gst_buffer_get_size (out) - dec->stream.avail_out);
 		    GST_BUFFER_OFFSET (out) = dec->stream.total_out - gst_buffer_get_size (out);
@@ -290,7 +290,7 @@ gst_gzdec_chain (GstPad * pad, GstBuffer * in)
 
 		        caps = gst_type_find_helper_for_buffer (GST_OBJECT (dec), out, NULL);
 		        if (caps) {
-#if !GST_VERSION_MAJOR
+#if !GST_CHECK_VERSION(1,0,0)
 					gst_buffer_set_caps (out, caps);
 #endif
 		            gst_pad_set_caps (dec->src, caps);
@@ -303,7 +303,7 @@ gst_gzdec_chain (GstPad * pad, GstBuffer * in)
 
 		    /* Push data */
 		    GST_DEBUG_OBJECT (dec, "Push data on src pad");
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
 		    have = gst_buffer_get_size (out);
 #else
 			have = GST_BUFFER_SIZE (out);
@@ -317,7 +317,7 @@ gst_gzdec_chain (GstPad * pad, GstBuffer * in)
 		} while (ret != Z_STREAM_END);
 	}
 
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
         gst_buffer_unmap (in, &inmap);
 #endif
         gst_buffer_unref (in);
@@ -325,7 +325,7 @@ gst_gzdec_chain (GstPad * pad, GstBuffer * in)
 }
 
 static void
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
 gst_gzdec_init (GstGzdec * dec)
 #else
 gst_gzdec_init (GstGzdec * dec, GstGzdecClass * klass)
@@ -440,7 +440,7 @@ gst_gzdec_class_init (GstGzdecClass * klass)
             g_param_spec_uint ("buffer-size", "Buffer size", "Buffer size",
                 1, G_MAXUINT, DEFAULT_BUFFER_SIZE,
                 G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-#if GST_VERSION_MAJOR
+#if GST_CHECK_VERSION(1,0,0)
     gst_element_class_add_pad_template (gstelement_class,
             gst_static_pad_template_get (&sink_template));
     gst_element_class_add_pad_template (gstelement_class,
@@ -452,7 +452,7 @@ gst_gzdec_class_init (GstGzdecClass * klass)
     GST_DEBUG_CATEGORY_INIT (gzdec_debug, "gzdec", 0, "GZ decompressor");
 }
 
-#if !GST_VERSION_MAJOR
+#if !GST_CHECK_VERSION(1,0,0)
 static void
 gst_gzdec_base_init (gpointer g_class)
 {
