@@ -52,22 +52,22 @@
 
 #include <string.h>
 
-static gboolean
+    static gboolean
 plugin_init (GstPlugin * p)
 {
-  if (!gst_element_register (p, "gzenc", GST_RANK_NONE, GST_TYPE_GZENC))
-    return FALSE;
-  if (!gst_element_register (p, "gzdec", GST_RANK_NONE, GST_TYPE_GZDEC))
-    return FALSE;
-  return TRUE;
+    if (!gst_element_register (p, "gzenc", GST_RANK_NONE, GST_TYPE_GZENC))
+        return FALSE;
+    if (!gst_element_register (p, "gzdec", GST_RANK_NONE, GST_TYPE_GZDEC))
+        return FALSE;
+    return TRUE;
 }
 
 
 GST_PLUGIN_DEFINE (GST_VERSION_MAJOR, GST_VERSION_MINOR, 
 #if GST_CHECK_VERSION(1,0,0)
-	gz,
+        gz,
 #else
-	"gz",
+        "gz",
 #endif
-    "Compress or decompress streams",
-    plugin_init, VERSION, "LGPL", PACKAGE_NAME, "https://github.com/Snec/gst-gz.git")
+        "Compress or decompress streams",
+        plugin_init, VERSION, "LGPL", PACKAGE_NAME, "https://github.com/Snec/gst-gz.git")

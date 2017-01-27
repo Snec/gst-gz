@@ -54,11 +54,11 @@ GST_DEBUG_CATEGORY_STATIC (gzdec_debug);
 #define GST_CAT_DEFAULT gzdec_debug
 
 static GstStaticPadTemplate sink_template = 
-	GST_STATIC_PAD_TEMPLATE ("sink", GST_PAD_SINK, GST_PAD_ALWAYS, 
-	GST_STATIC_CAPS ("application/x-gzip"));
+GST_STATIC_PAD_TEMPLATE ("sink", GST_PAD_SINK, GST_PAD_ALWAYS, 
+        GST_STATIC_CAPS ("application/x-gzip"));
 static GstStaticPadTemplate src_template = 
-	GST_STATIC_PAD_TEMPLATE ("src", GST_PAD_SRC, GST_PAD_ALWAYS, 
-	GST_STATIC_CAPS_ANY);
+GST_STATIC_PAD_TEMPLATE ("src", GST_PAD_SRC, GST_PAD_ALWAYS, 
+        GST_STATIC_CAPS_ANY);
 
 #define DEFAULT_FIRST_BUFFER_SIZE 1024
 #define DEFAULT_BUFFER_SIZE 1024
@@ -98,21 +98,21 @@ G_DEFINE_TYPE (GstGzdec, gst_gzdec, GST_TYPE_ELEMENT);
 GST_BOILERPLATE (GstGzdec, gst_gzdec, GstElement, GST_TYPE_ELEMENT);
 #endif
 
-static void
+    static void
 gst_gzdec_decompress_end (GstGzdec * dec)
 {
-	g_return_if_fail (GST_IS_GZDEC (dec));
+    g_return_if_fail (GST_IS_GZDEC (dec));
 
     if (dec->ready)
-	{
-		GST_DEBUG_OBJECT (dec, "Finalize gzdec decompressing feature");
+    {
+        GST_DEBUG_OBJECT (dec, "Finalize gzdec decompressing feature");
         (void)inflateEnd(&dec->stream);
         memset (&dec->stream, 0, sizeof (dec->stream));
         dec->ready = FALSE;
     }
 }
 
-static void
+    static void
 gst_gzdec_decompress_init (GstGzdec * dec)
 {
     GST_DEBUG_OBJECT (dec, "Initialize gzdec decompressing feature");
@@ -126,31 +126,31 @@ gst_gzdec_decompress_init (GstGzdec * dec)
     dec->stream.avail_in = 0;
     dec->stream.next_in = Z_NULL;
 
-	dec->offset = 0;
+    dec->offset = 0;
 
     switch (inflateInit2 (&dec->stream, MAX_WBITS|32))
-	{
+    {
         case Z_OK:
-			GST_DEBUG_OBJECT (dec, "inflateInit2() return Z_OK");
+            GST_DEBUG_OBJECT (dec, "inflateInit2() return Z_OK");
             dec->ready = TRUE;
             return;
-		/* Handle initialisation errors */
-		case Z_MEM_ERROR:
-			GST_DEBUG_OBJECT (dec, "inflateInit2() return Z_MEM_ERROR");
-			break;
-		case Z_VERSION_ERROR:
-			GST_DEBUG_OBJECT (dec, "inflateInit2() return Z_VERSION_ERROR");
-			break;
-		case Z_STREAM_ERROR:
-			GST_DEBUG_OBJECT (dec, "inflateInit2() return Z_STREAM_ERROR");
-			break;
+            /* Handle initialisation errors */
+        case Z_MEM_ERROR:
+            GST_DEBUG_OBJECT (dec, "inflateInit2() return Z_MEM_ERROR");
+            break;
+        case Z_VERSION_ERROR:
+            GST_DEBUG_OBJECT (dec, "inflateInit2() return Z_VERSION_ERROR");
+            break;
+        case Z_STREAM_ERROR:
+            GST_DEBUG_OBJECT (dec, "inflateInit2() return Z_STREAM_ERROR");
+            break;
         default:
-			GST_DEBUG_OBJECT (dec, "inflateInit2() return unknown error");
-			break;
+            GST_DEBUG_OBJECT (dec, "inflateInit2() return unknown error");
+            break;
     }
-	dec->ready = FALSE;
-	GST_ELEMENT_ERROR (dec, CORE, FAILED, (NULL), 
-		("Failed to start decompression."));
+    dec->ready = FALSE;
+    GST_ELEMENT_ERROR (dec, CORE, FAILED, (NULL), 
+            ("Failed to start decompression."));
     return;
 }
 
@@ -170,158 +170,158 @@ gst_gzdec_chain (GstPad * pad, GstBuffer * in)
 
     dec = GST_GZDEC (parent);
 #else
-	dec = GST_GZDEC (GST_PAD_PARENT (pad));
+    dec = GST_GZDEC (GST_PAD_PARENT (pad));
 #endif
     if (!dec->ready)
     {
-		/* Don't go further if not ready */
+        /* Don't go further if not ready */
         GST_ELEMENT_ERROR (dec, LIBRARY, FAILED, (NULL), 
-			("Decompressor not ready."));
+                ("Decompressor not ready."));
 #if GST_CHECK_VERSION(1,0,0)
         flow = GST_FLOW_FLUSHING;
 #else
-		flow = GST_FLOW_WRONG_STATE;
+        flow = GST_FLOW_WRONG_STATE;
 #endif
     }
-	else
-	{
+    else
+    {
 #if GST_CHECK_VERSION(1,0,0)
-		/* Mapping the input buffer */
-		gst_buffer_map (in, &inmap, GST_MAP_READ);
-    	dec->stream.next_in = (z_const Bytef *) inmap.data;
-    	dec->stream.avail_in = inmap.size;
-    	GST_DEBUG_OBJECT (dec, "Input buffer size : dec->stream.avail_in = %d", dec->stream.avail_in);
+        /* Mapping the input buffer */
+        gst_buffer_map (in, &inmap, GST_MAP_READ);
+        dec->stream.next_in = (z_const Bytef *) inmap.data;
+        dec->stream.avail_in = inmap.size;
+        GST_DEBUG_OBJECT (dec, "Input buffer size : dec->stream.avail_in = %d", dec->stream.avail_in);
 #else
-		dec->stream.next_in = (void *) GST_BUFFER_DATA (in);
-		dec->stream.avail_in = GST_BUFFER_SIZE (in);
+        dec->stream.next_in = (void *) GST_BUFFER_DATA (in);
+        dec->stream.avail_in = GST_BUFFER_SIZE (in);
 #endif
-    	do
-		{
-        	guint have;
+        do
+        {
+            guint have;
 #if GST_CHECK_VERSION(1,0,0)
-		    /* Create and map the output buffer */
-		    out = gst_buffer_new_and_alloc (dec->offset ? dec->buffer_size : dec->first_buffer_size);
-			gst_buffer_map (out, &outmap, GST_MAP_WRITE);
-			dec->stream.next_out = (Bytef *) outmap.data;
-		    dec->stream.avail_out = outmap.size;
+            /* Create and map the output buffer */
+            out = gst_buffer_new_and_alloc (dec->offset ? dec->buffer_size : dec->first_buffer_size);
+            gst_buffer_map (out, &outmap, GST_MAP_WRITE);
+            dec->stream.next_out = (Bytef *) outmap.data;
+            dec->stream.avail_out = outmap.size;
 
-		    /* Try to decode */
-			gst_buffer_unmap (out, &outmap);
+            /* Try to decode */
+            gst_buffer_unmap (out, &outmap);
 #else
-    /* Create the output buffer */
-    flow = gst_pad_alloc_buffer (dec->src, dec->offset,
-        dec->offset ? dec->buffer_size : dec->first_buffer_size,
-        GST_PAD_CAPS (dec->src), &out);
+            /* Create the output buffer */
+            flow = gst_pad_alloc_buffer (dec->src, dec->offset,
+                    dec->offset ? dec->buffer_size : dec->first_buffer_size,
+                    GST_PAD_CAPS (dec->src), &out);
 
-    if (flow != GST_FLOW_OK) {
-      GST_DEBUG_OBJECT (dec, "pad alloc failed: %s", gst_flow_get_name (flow));
-      gst_gzdec_decompress_init (dec);
-      break;
-    }
+            if (flow != GST_FLOW_OK) {
+                GST_DEBUG_OBJECT (dec, "pad alloc failed: %s", gst_flow_get_name (flow));
+                gst_gzdec_decompress_init (dec);
+                break;
+            }
 
-    /* Decode */
-    dec->stream.next_out = (void *) GST_BUFFER_DATA (out);
-    dec->stream.avail_out = GST_BUFFER_SIZE (out);
+            /* Decode */
+            dec->stream.next_out = (void *) GST_BUFFER_DATA (out);
+            dec->stream.avail_out = GST_BUFFER_SIZE (out);
 #endif
-		    ret = inflate (&dec->stream, Z_NO_FLUSH);
-			switch (ret)
-			{
-        		case Z_OK:
-					GST_DEBUG_OBJECT (dec, "inflate() return Z_OK [%s]",dec->stream.msg);
-            		break;
-				case Z_STREAM_END:
-					GST_DEBUG_OBJECT (dec, "inflate() return Z_STREAM_END [%s]",dec->stream.msg);
-					break;
-				case Z_NEED_DICT:
-					GST_DEBUG_OBJECT (dec, "inflate() return Z_NEED_DICT [%s]",dec->stream.msg);
-					break;
-				/* Errors */
-				case Z_ERRNO:
-					GST_DEBUG_OBJECT (dec, "inflate() return Z_ERRNO [%s]",dec->stream.msg);
-					break;
-				case Z_STREAM_ERROR:
-					GST_DEBUG_OBJECT (dec, "inflate() return Z_STREAM_ERROR [%s]",dec->stream.msg);
-					break;
-				case Z_DATA_ERROR:
-					GST_DEBUG_OBJECT (dec, "inflate() return Z_DATA_ERROR [%s]",dec->stream.msg);
-					break;
-				case Z_MEM_ERROR:
-					GST_DEBUG_OBJECT (dec, "inflate() return Z_MEM_ERROR [%s]",dec->stream.msg);
-					break;
-				case Z_BUF_ERROR:
-					GST_DEBUG_OBJECT (dec, "inflate() return Z_BUF_ERROR [%s]",dec->stream.msg);
-					break;
-				case Z_VERSION_ERROR:
-					GST_DEBUG_OBJECT (dec, "inflate() return Z_VERSION_ERROR [%s]",dec->stream.msg);
-				default:
-					GST_DEBUG_OBJECT (dec, "inflate() return unknow code (%d) [%s]", ret, dec->stream.msg);
-					break;
-			}
+            ret = inflate (&dec->stream, Z_NO_FLUSH);
+            switch (ret)
+            {
+                case Z_OK:
+                    GST_DEBUG_OBJECT (dec, "inflate() return Z_OK [%s]",dec->stream.msg);
+                    break;
+                case Z_STREAM_END:
+                    GST_DEBUG_OBJECT (dec, "inflate() return Z_STREAM_END [%s]",dec->stream.msg);
+                    break;
+                case Z_NEED_DICT:
+                    GST_DEBUG_OBJECT (dec, "inflate() return Z_NEED_DICT [%s]",dec->stream.msg);
+                    break;
+                    /* Errors */
+                case Z_ERRNO:
+                    GST_DEBUG_OBJECT (dec, "inflate() return Z_ERRNO [%s]",dec->stream.msg);
+                    break;
+                case Z_STREAM_ERROR:
+                    GST_DEBUG_OBJECT (dec, "inflate() return Z_STREAM_ERROR [%s]",dec->stream.msg);
+                    break;
+                case Z_DATA_ERROR:
+                    GST_DEBUG_OBJECT (dec, "inflate() return Z_DATA_ERROR [%s]",dec->stream.msg);
+                    break;
+                case Z_MEM_ERROR:
+                    GST_DEBUG_OBJECT (dec, "inflate() return Z_MEM_ERROR [%s]",dec->stream.msg);
+                    break;
+                case Z_BUF_ERROR:
+                    GST_DEBUG_OBJECT (dec, "inflate() return Z_BUF_ERROR [%s]",dec->stream.msg);
+                    break;
+                case Z_VERSION_ERROR:
+                    GST_DEBUG_OBJECT (dec, "inflate() return Z_VERSION_ERROR [%s]",dec->stream.msg);
+                default:
+                    GST_DEBUG_OBJECT (dec, "inflate() return unknow code (%d) [%s]", ret, dec->stream.msg);
+                    break;
+            }
 
-		    if (ret == Z_STREAM_ERROR)
-		    {
-				GST_ELEMENT_ERROR (dec, STREAM, DECODE, (NULL),
-				        ("Failed to decompress data (error code %i).", ret));
-				gst_gzdec_decompress_init (dec);
-				gst_buffer_unref (out);
-				flow = GST_FLOW_ERROR;
-				break;
-		    }
+            if (ret == Z_STREAM_ERROR)
+            {
+                GST_ELEMENT_ERROR (dec, STREAM, DECODE, (NULL),
+                        ("Failed to decompress data (error code %i).", ret));
+                gst_gzdec_decompress_init (dec);
+                gst_buffer_unref (out);
+                flow = GST_FLOW_ERROR;
+                break;
+            }
 #if GST_CHECK_VERSION(1,0,0)
-		    if (dec->stream.avail_out >= gst_buffer_get_size (out))
+            if (dec->stream.avail_out >= gst_buffer_get_size (out))
 #else
-			if (dec->stream.avail_out >= GST_BUFFER_SIZE (out))
+                if (dec->stream.avail_out >= GST_BUFFER_SIZE (out))
 #endif
-			{
-		        gst_buffer_unref (out);
-		        break;
-		    }
+                {
+                    gst_buffer_unref (out);
+                    break;
+                }
 #if GST_CHECK_VERSION(1,0,0)
-			/* Resize the output buffer */
-		    gst_buffer_resize (out, 0, gst_buffer_get_size (out) - dec->stream.avail_out);
-		    GST_BUFFER_OFFSET (out) = dec->stream.total_out - gst_buffer_get_size (out);
+            /* Resize the output buffer */
+            gst_buffer_resize (out, 0, gst_buffer_get_size (out) - dec->stream.avail_out);
+            GST_BUFFER_OFFSET (out) = dec->stream.total_out - gst_buffer_get_size (out);
 #else
-			GST_BUFFER_SIZE (out) -= dec->stream.avail_out;
-			GST_BUFFER_OFFSET (out) = dec->stream.total_out - GST_BUFFER_SIZE (out);
+            GST_BUFFER_SIZE (out) -= dec->stream.avail_out;
+            GST_BUFFER_OFFSET (out) = dec->stream.total_out - GST_BUFFER_SIZE (out);
 #endif
-		    /* Configure source pad (if necessary) */
-		    if (!dec->offset) {
-		        GstCaps *caps = NULL;
+            /* Configure source pad (if necessary) */
+            if (!dec->offset) {
+                GstCaps *caps = NULL;
 
-		        caps = gst_type_find_helper_for_buffer (GST_OBJECT (dec), out, NULL);
-		        if (caps) {
+                caps = gst_type_find_helper_for_buffer (GST_OBJECT (dec), out, NULL);
+                if (caps) {
 #if !GST_CHECK_VERSION(1,0,0)
-					gst_buffer_set_caps (out, caps);
+                    gst_buffer_set_caps (out, caps);
 #endif
-		            gst_pad_set_caps (dec->src, caps);
-		            gst_pad_use_fixed_caps (dec->src);
-		            gst_caps_unref (caps);
-		        } else {
-		            GST_FIXME_OBJECT (dec, "shouldn't we queue output buffers until we have a type?");
-		        }
-		    }
+                    gst_pad_set_caps (dec->src, caps);
+                    gst_pad_use_fixed_caps (dec->src);
+                    gst_caps_unref (caps);
+                } else {
+                    GST_FIXME_OBJECT (dec, "shouldn't we queue output buffers until we have a type?");
+                }
+            }
 
-		    /* Push data */
-		    GST_DEBUG_OBJECT (dec, "Push data on src pad");
+            /* Push data */
+            GST_DEBUG_OBJECT (dec, "Push data on src pad");
 #if GST_CHECK_VERSION(1,0,0)
-		    have = gst_buffer_get_size (out);
+            have = gst_buffer_get_size (out);
 #else
-			have = GST_BUFFER_SIZE (out);
+            have = GST_BUFFER_SIZE (out);
 #endif
-		    flow = gst_pad_push (dec->src, out);
-		    if (flow != GST_FLOW_OK)
-		    {
-		        break;
-		    } 
-		    dec->offset += have;
-		} while (ret != Z_STREAM_END);
-	}
+            flow = gst_pad_push (dec->src, out);
+            if (flow != GST_FLOW_OK)
+            {
+                break;
+            } 
+            dec->offset += have;
+        } while (ret != Z_STREAM_END);
+    }
 
 #if GST_CHECK_VERSION(1,0,0)
-        gst_buffer_unmap (in, &inmap);
+    gst_buffer_unmap (in, &inmap);
 #endif
-        gst_buffer_unref (in);
-        return flow; 
+    gst_buffer_unref (in);
+    return flow; 
 }
 
 static void
@@ -346,7 +346,7 @@ gst_gzdec_init (GstGzdec * dec, GstGzdecClass * klass)
     gst_gzdec_decompress_init (dec);
 }
 
-static void
+    static void
 gst_gzdec_finalize (GObject * object)
 {
 
@@ -357,7 +357,7 @@ gst_gzdec_finalize (GObject * object)
     G_OBJECT_CLASS (parent_class)->finalize (object);
 }
 
-static void
+    static void
 gst_gzdec_get_property (GObject * object, guint prop_id,
         GValue * value, GParamSpec * pspec)
 {
@@ -366,38 +366,38 @@ gst_gzdec_get_property (GObject * object, guint prop_id,
     switch (prop_id) {
         case PROP_BUFFER_SIZE:
             g_value_set_uint (value, dec->buffer_size);
-			GST_DEBUG_OBJECT (dec, "Buffer size is : %d",dec->buffer_size);
+            GST_DEBUG_OBJECT (dec, "Buffer size is : %d",dec->buffer_size);
             break;
         case PROP_FIRST_BUFFER_SIZE:
             g_value_set_uint (value, dec->first_buffer_size);
-			GST_DEBUG_OBJECT (dec, "Buffer size is : %d",dec->buffer_size);
+            GST_DEBUG_OBJECT (dec, "Buffer size is : %d",dec->buffer_size);
             break;
         default:
             G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     }
 }
 
-static void
+    static void
 gst_gzdec_set_property (GObject * object, guint prop_id,
         const GValue * value, GParamSpec * pspec)
 {
     GstGzdec *dec = GST_GZDEC (object);
-    
+
     switch (prop_id) {
         case PROP_BUFFER_SIZE:
             dec->buffer_size = g_value_get_uint (value);
-			GST_DEBUG_OBJECT (dec, "Buffer size set to : %d",dec->buffer_size);
+            GST_DEBUG_OBJECT (dec, "Buffer size set to : %d",dec->buffer_size);
             break;
         case PROP_FIRST_BUFFER_SIZE:
             dec->first_buffer_size = g_value_get_uint (value);
-			GST_DEBUG_OBJECT (dec, "First buffer size set to : %d",dec->first_buffer_size);
+            GST_DEBUG_OBJECT (dec, "First buffer size set to : %d",dec->first_buffer_size);
             break;
         default:
             G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     }
 }
 
-static GstStateChangeReturn
+    static GstStateChangeReturn
 gst_gzdec_change_state (GstElement * element, GstStateChange transition)
 {
     GstGzdec *dec = GST_GZDEC (element);
@@ -417,7 +417,7 @@ gst_gzdec_change_state (GstElement * element, GstStateChange transition)
     return ret;
 }
 
-static void
+    static void
 gst_gzdec_class_init (GstGzdecClass * klass)
 {
     GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
@@ -453,15 +453,15 @@ gst_gzdec_class_init (GstGzdecClass * klass)
 }
 
 #if !GST_CHECK_VERSION(1,0,0)
-static void
+    static void
 gst_gzdec_base_init (gpointer g_class)
 {
-  GstElementClass *ec = GST_ELEMENT_CLASS (g_class);
+    GstElementClass *ec = GST_ELEMENT_CLASS (g_class);
 
-  gst_element_class_add_static_pad_template (ec, &sink_template);
-  gst_element_class_add_static_pad_template (ec, &src_template);
-  gst_element_class_set_details_simple (ec, "GZ decoder",
-		"Codec/Decoder", "Decodes compressed streams",
-		"Alexandre Esse <alexandre.esse.dev@gmail.com>");
+    gst_element_class_add_static_pad_template (ec, &sink_template);
+    gst_element_class_add_static_pad_template (ec, &src_template);
+    gst_element_class_set_details_simple (ec, "GZ decoder",
+            "Codec/Decoder", "Decodes compressed streams",
+            "Alexandre Esse <alexandre.esse.dev@gmail.com>");
 }
 #endif

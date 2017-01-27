@@ -55,9 +55,7 @@ G_BEGIN_DECLS
 typedef struct _GstGzenc GstGzenc;
 typedef struct _GstGzencClass GstGzencClass;
 
-GType
-gst_gzenc_get_type (void)
-    G_GNUC_CONST;
+GType gst_gzenc_get_type (void) G_GNUC_CONST;
 
 G_END_DECLS
 #endif /* __GST_GZENC_H__ */
