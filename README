@@ -1,6 +1,7 @@
 # zlib based GStreamer plugins
 
-This project provides GStreamer plugins in order to compress and decompress data with zlib.
+This project provides GStreamer plugins in order to compress and decompress data with [zlib](http://www.zlib.net/).
+
 Two plugins are provided:
 * gzenc: plugin for compressing data.
 * gzdec: plugin for decompressing data.
